@@ -34,10 +34,16 @@ exports.handler = async (event) => {
             cloudFront: process.env.CloudFront,
             frameCapture: JSON.parse(process.env.FrameCapture),
             archiveSource:  process.env.ArchiveSource,
-            jobTemplate_2160p: process.env.MediaConvert_Template_2160p,
-            jobTemplate_1080p: process.env.MediaConvert_Template_1080p,
-            jobTemplate_720p: process.env.MediaConvert_Template_720p,
-            inputRotate: process.env.InputRotate,
+            //jobTemplate_2160p: process.env.MediaConvert_Template_2160p, // commented, not needed
+            //jobTemplate_1080p: process.env.MediaConvert_Template_1080p, // commented, not needed
+            //jobTemplate_2160p_vertical: 'VoD-stack_Ott_2160p_Avc_Aac_9x16_vertical_mvod_no_preset', //added
+            //jobTemplate_1080p_vertical: 'VoD-stack_Ott_1080p_Avc_Aac_9x16_vertical_mvod_no_preset',//added
+            
+            jobTemplate_720p: 'VoD-stack_Ott_720p_Avc_Aac_16x9_horizontal_mvod_no_preset', //changed
+            jobTemplate_720p_vertical: 'VoD-stack_Ott_720p_Avc_Aac_9x16_vertical_mvod_no_preset', //added
+            
+            //inputRotate: process.env.InputRotate, //commented - use 'AUTO' in encode lambda function
+            queuePrefix: 'arn:aws:mediaconvert:us-west-2:288048172428:queues/Queue-',// added - the prefix from mediaConverter queues -
             acceleratedTranscoding: process.env.AcceleratedTranscoding,
             enableSns:JSON.parse(process.env.EnableSns),
             enableSqs:JSON.parse(process.env.EnableSqs)
