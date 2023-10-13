@@ -33,8 +33,12 @@ const buildArnFromUri = (s3Uri) => {
  * https://ditribution-id.cloudfront.net/out/v1/asset-id/index.m3u8
  */
 const convertEndpoints = (egressEndpoints, cloudFrontEndpoint) => {
-    const url = new URL(process.env.GroupDomainName);
+    const url = new URL(process.env.GroupDomainName); //commented
+    //const url = new URL(process.env.DRMDomainName); // added the domain name of the DRM package group as DRMDomainName to the environment variable for drm encryption
+    
     let updatedEndpoints = {};
+
+    //console.log(`url:: ${JSON.stringify(url, null, 2)}`);// added
 
     egressEndpoints.forEach(endpoint => {
         const parts = endpoint.PackagingConfigurationId.split('-');
@@ -65,6 +69,7 @@ const handler = async (event) => {
         console.log(`Ingesting asset:: ${JSON.stringify(params, null, 2)}`);
         const response = await mediaPackageVod.createAsset(params);
         event.mediaPackageResourceId = randomId;
+        console.log(`RESPONSE:: ${JSON.stringify(response, null, 2)}`);//added
         event.egressEndpoints = convertEndpoints(response.EgressEndpoints, event.cloudFront);
         console.log(`ENDPOINTS:: ${JSON.stringify(event.egressEndpoints, null, 2)}`);
     } catch (err) {
