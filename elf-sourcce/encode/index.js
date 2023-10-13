@@ -130,9 +130,15 @@ exports.handler = async (event) => {
 
     try {
         const inputPath = `s3://${event.srcBucket}/${event.srcVideo}`;
-        const outputPath = `s3://${event.destBucket}/${event.guid}`;
+        const inputOutputRelationPath = event.srcVideo.split(".")[0]; // added
+        const outputPath = `s3://${event.destBucket}/${inputOutputRelationPath}/${event.guid}`;//changed
+        console.log("Output path is: ", outputPath);
 
         // Baseline for the job parameters
+        //Added - random select a queue number from [1, 9]
+        const queueNum =  Math.floor(Math.random() * 9) + 1; // Added
+        const queuePrefix = event.queuePrefix;
+        //
         let job = {
             JobTemplate: event.jobTemplate,
             Role: process.env.MediaConvertRole,
@@ -228,7 +234,7 @@ exports.handler = async (event) => {
             job.Settings.Inputs[0].TimecodeSource = "ZEROBASED"
         }
         job.Tags = {'SolutionId': 'SO0021'};
-        
+        console.log(`JOB:: ${JSON.stringify(job, null, 2)}`);//added
         let data = await mediaconvert.createJob(job);
         event.encodingJob = job;
         event.encodeJobId = data.Job.Id;
