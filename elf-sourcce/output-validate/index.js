@@ -109,10 +109,12 @@ exports.handler = async (event) => {
 
     data.thumbNails = [];
     data.thumbNailsUrls = [];
-
+    const inputOutputRelationPath = data.srcVideo.split(".")[0];//added
+    //console.log("inputOutputRelationPath : " + inputOutputRelationPath)//added
     params = {
       Bucket: data.destBucket,
-      Prefix: `${data.guid}/thumbnails/`,
+      //Prefix: `${data.guid}/thumbnails/`,
+      Prefix: `${inputOutputRelationPath}/${data.guid}/thumbnails/`,//changed
     };
 
     let thumbNails = await s3.listObjects(params);
