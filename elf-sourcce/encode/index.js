@@ -141,6 +141,7 @@ exports.handler = async (event) => {
         //
         let job = {
             JobTemplate: event.jobTemplate,
+            Queue: queuePrefix + queueNum,
             Role: process.env.MediaConvertRole,
             UserMetadata: {
                 guid: event.guid,
@@ -157,7 +158,7 @@ exports.handler = async (event) => {
                     },
                     VideoSelector: {
                         ColorSpace: 'FOLLOW',
-                        Rotate: event.inputRotate
+                        Rotate: 'AUTO' //changed to Auto rotation in case the template did not set for auto rotation input
                     },
                     FilterEnable: 'AUTO',
                     PsiControl: 'USE_PSI',
