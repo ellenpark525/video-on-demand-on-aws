@@ -70,7 +70,8 @@ def parse_video_attributes(track):
     attributes['framerate'] = parse_number(track.get('FrameRate'))
     attributes['scanType'] = track.get('ScanType')
     attributes['aspectRatio'] = track.get('DisplayAspectRatio')
-
+    
+    attributes['rotation'] = parse_number(track.get('Rotation'))
     attributes['bitDepth'] = parse_number(track.get('BitDepth'))
     attributes['colorSpace'] = '{0} {1}'.format(track.get('ColorSpace'), track.get('ChromaSubsampling'))
 
