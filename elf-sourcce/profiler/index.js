@@ -33,7 +33,7 @@ exports.handler = async (event) => {
         };
 
         let data = await dynamo.get(params);
-
+        console.log(`data:: ${JSON.stringify(data, null, 2)}`);
         Object.keys(data.Item).forEach(key => {
             event[key] = data.Item[key];
         });
@@ -41,53 +41,43 @@ exports.handler = async (event) => {
         let mediaInfo = JSON.parse(event.srcMediainfo);
         event.srcHeight = mediaInfo.video[0].height;
         event.srcWidth = mediaInfo.video[0].width;
+        event.rotation = mediaInfo.video[0].rotation;//added rotation
 
+        // added
+        // Determine a video is vertical or not 
+        // 1.rotation = 0 or 180 and height >  width
+        // 2.rotation = 90 or 270 and height <  width
+        let isVertical = false;
+        if (((event.rotation == 0 || event.rotation == 180) && event.srcHeight > event.srcWidth)
+        ||((event.rotation == 90 || event.rotation == 270) && event.srcHeight < event.srcWidth)) {
+            isVertical = true;
+        }
+        event.isVertical = isVertical;
+
+
+        // Choose the template for videos 
+        // horizontal videos (remain the same as VoD template)
         // Determine encoding by matching the srcHeight to the nearest profile.
-        const profiles = [2160, 1080, 720];
-        let lastProfile;
-        let encodeProfile;
+        let encodeProfile = 720;
+        let height = 720;
+        let width = 1280;
 
-        profiles.some(p => {
-            let profile = Math.abs(event.srcHeight - p);
-            if (profile > lastProfile) {
-                return true;
+        let jobTemplates = {
+            '720': event.jobTemplate_720p
+        };
+        if (isVertical) {
+            height = 1280;
+            width = 720;
+            jobTemplates = {
+                '720': event.jobTemplate_720p_vertical
             }
-
-            encodeProfile = p;
-            lastProfile = profile;
-        });
-
+        }
         event.encodingProfile = encodeProfile;
-
-        if (event.frameCapture) {
-            // Match Height x Width with the encoding profile.
-            const ratios = {
-                '2160': 3840,
-                '1080': 1920,
-                '720': 1280
-            };
-
-            event.frameCaptureHeight = encodeProfile;
-            event.frameCaptureWidth = ratios[encodeProfile];
-        }
-
-        // Update:: added support to pass in a custom encoding Template instead of using the
-        // solution defaults
-        if (!event.jobTemplate) {
-            // Match the jobTemplate to the encoding Profile.
-            const jobTemplates = {
-                '2160': event.jobTemplate_2160p,
-                '1080': event.jobTemplate_1080p,
-                '720': event.jobTemplate_720p
-            };
-
+        event.frameCaptureHeight = height;
+            event.frameCaptureWidth = width;
             event.jobTemplate = jobTemplates[encodeProfile];
-            console.log(`Chosen template:: ${event.jobTemplate}`);
-
-            event.isCustomTemplate = false;
-        } else {
-            event.isCustomTemplate = true;
-        }
+                        event.isCustomTemplate = false;
+        console.log(`Chosen template:: ${event.jobTemplate}`);
     } catch (err) {
         await error.handler(event, err);
         throw err;
