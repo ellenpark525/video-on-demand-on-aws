@@ -44,6 +44,7 @@ exports.handler = async (event) => {
 
         if (event.workflowStatus === 'Complete') {
             msg = event;
+            msg.duration = JSON.parse(event.srcMediainfo).container.duration; // Added for getting duration
             delete msg.srcMediainfo;
             delete msg.jobTemplate_2160p;
             delete msg.jobTemplate_1080p;
